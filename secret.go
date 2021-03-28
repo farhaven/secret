@@ -38,15 +38,15 @@ func cmdGenerate(n, k int, out io.Writer) error {
 	return nil
 }
 
-func cmdRecover(in io.Reader, out io.Writer) error {
+func cmdRecover(in io.Reader, diag io.Writer, out io.Writer) error {
 	scanner := bufio.NewScanner(in)
 
 	var secrets []sharedsecret.Share
 
 	for scanner.Scan() {
-		t := scanner.Text()
+		t := strings.TrimSpace(scanner.Text())
 
-		if strings.TrimSpace(t) == "" {
+		if t == "" || strings.HasPrefix(t, "secret: ") || strings.HasPrefix(t, "shares:") {
 			continue
 		}
 
@@ -54,7 +54,8 @@ func cmdRecover(in io.Reader, out io.Writer) error {
 
 		err := s.UnmarshalText([]byte(t))
 		if err != nil {
-			return fmt.Errorf("reading share %q: %w", t, err)
+			fmt.Fprintf(diag, "reading share %q: %s\n", t, err)
+			continue
 		}
 
 		secrets = append(secrets, s)
@@ -108,7 +109,7 @@ func main() {
 			defer fh.Close()
 		}
 
-		err = cmdRecover(fh, os.Stdout)
+		err = cmdRecover(fh, os.Stderr, os.Stdout)
 	default:
 		err = fmt.Errorf("invalid mode %q", *mode)
 	}
