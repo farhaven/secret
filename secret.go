@@ -30,7 +30,7 @@ func cmdGenerate(n, k int, out io.Writer) error {
 
 	fmt.Fprintln(out, "secret:", secret.Text(62))
 
-	fmt.Fprintln(out, "shares:")
+	fmt.Fprintf(out, "shares (at least %d are needed for recover):\n", k)
 	for _, share := range shares {
 		fmt.Fprintln(out, share)
 	}
@@ -46,7 +46,7 @@ func cmdRecover(in io.Reader, diag io.Writer, out io.Writer) error {
 	for scanner.Scan() {
 		t := strings.TrimSpace(scanner.Text())
 
-		if t == "" || strings.HasPrefix(t, "secret: ") || strings.HasPrefix(t, "shares:") {
+		if t == "" || strings.HasPrefix(t, "secret: ") || strings.HasPrefix(t, "shares") {
 			continue
 		}
 
