@@ -22,6 +22,10 @@ func cmdGenerate(n, k int, out io.Writer) error {
 		return errors.New("There will not be enough shares to recover the secret.")
 	}
 
+	if n < 1 || k < 1 {
+		return errors.New("Number of shares must be larger than 1.")
+	}
+
 	shares, secret := sharedsecret.New(int64(n), int64(k))
 
 	fmt.Fprintln(out, "secret:", secret.Text(62))
