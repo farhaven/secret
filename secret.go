@@ -30,7 +30,7 @@ func cmdGenerate(n, k int, out io.Writer) error {
 
 	fmt.Fprintln(out, "secret:", secret.Text(62))
 
-	fmt.Fprintf(out, "shares (at least %d are needed for recover):\n", k)
+	fmt.Fprintf(out, "shares (need at least %d of these for recovery):\n", k)
 	for _, share := range shares {
 		fmt.Fprintln(out, share)
 	}
