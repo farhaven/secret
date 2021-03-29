@@ -1,4 +1,5 @@
-# github.com/posener/sharedsecret v0.0.0-20200414095807-b90bfadc28af
+# github.com/posener/sharedsecret v0.0.0-20200414095807-b90bfadc28af => ../sharedsecret
 ## explicit
 github.com/posener/sharedsecret
 github.com/posener/sharedsecret/internal/polynom
+# github.com/posener/sharedsecret => ../sharedsecret

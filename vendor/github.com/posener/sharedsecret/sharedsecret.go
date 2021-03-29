@@ -10,6 +10,7 @@ package sharedsecret
 
 import (
 	"bytes"
+	"crypto/rand"
 	"errors"
 	"math/big"
 
@@ -60,10 +61,26 @@ func distribute(secret *big.Int, n, k int64) ([]Share, *big.Int) {
 	}
 	secret = p.Coeff(0)
 
+	seenX := make(map[string]bool)
+	zero := big.NewInt(0)
+
 	// Create the shares which are the value of p at any point but x != 0. Choose x in [1..n].
 	shares := make([]Share, 0, n)
 	for i := int64(1); i <= n; i++ {
-		x := big.NewInt(i)
+		x, err := rand.Int(rand.Reader, prime128)
+		if err != nil {
+			panic("creating random int: " + err.Error())
+		}
+
+		for x.Cmp(zero) == 0 || seenX[x.String()] {
+			x, err = rand.Int(rand.Reader, prime128)
+			if err != nil {
+				panic("creating random int: " + err.Error())
+			}
+		}
+
+		seenX[x.String()] = true
+
 		y := p.ValueAt(x)
 		shares = append(shares, Share{x: x, y: y})
 	}
