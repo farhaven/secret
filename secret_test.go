@@ -178,6 +178,10 @@ func TestRoundtrip(t *testing.T) {
 	secret := parts[1]
 	t.Logf("secret: %q", secret)
 
+	if len(secret) == 0 {
+		t.Errorf("zero-length secret generated")
+	}
+
 	err = cmdRecover(&buf, &errBuf, &outBuf)
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
