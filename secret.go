@@ -1,6 +1,6 @@
 // Command secret is a command line utility that provides (Shamir's Secret Sharing) https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing.
 //
-// It has three modes of operation:
+// It has two modes of operation:
 // - generate a completely new secret and a set of shares
 // - recover a secret from a set of shares
 package main
