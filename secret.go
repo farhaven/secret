@@ -100,39 +100,37 @@ func die(err error, printUsage bool) {
 }
 
 func main() {
-	mode := flag.String("mode", "generate", "Mode of operation. One of [generate, recover]")
+	doRecover := flag.Bool("recover", false, "Recover shares instead of generating")
 	minShares := flag.Int("k", 3, "Minimum number of shares required. Must be <= n.")
 	numShares := flag.Int("n", 5, "How many shares to generate")
 	secrets := flag.String("secrets", "-", "File to read secrets from. Use - to read from stdin.")
 
 	flag.Parse()
 
-	var err error
+	if !*doRecover {
+		err := cmdGenerate(*numShares, *minShares, os.Stdout)
 
-	switch *mode {
-	case "generate":
-		err = cmdGenerate(*numShares, *minShares, os.Stdout)
-	case "recover":
-		var (
-			fh  io.ReadCloser
-			err error
-		)
-
-		switch *secrets {
-		case "-":
-			fh = os.Stdin
-		default:
-			fh, err = os.Open(*secrets)
-			if err != nil {
-				die(err, false)
-			}
-			defer fh.Close()
+		if err != nil {
+			die(err, true)
 		}
 
-		err = cmdRecover(fh, os.Stderr, os.Stdout)
-	default:
-		err = fmt.Errorf("invalid mode %q", *mode)
+		return
 	}
+
+	var fh io.ReadCloser
+
+	switch *secrets {
+	case "-":
+		fh = os.Stdin
+	default:
+		fh, err := os.Open(*secrets)
+		if err != nil {
+			die(err, false)
+		}
+		defer fh.Close()
+	}
+
+	err := cmdRecover(fh, os.Stderr, os.Stdout)
 
 	if err != nil {
 		die(err, true)
