@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"strconv"
 	"strings"
 	"testing"
 )
@@ -145,10 +144,10 @@ func TestGenerate(t *testing.T) {
 		t.Fatalf("want 7 lines, have %d: %q", len(lines), buf.String())
 	}
 
-	for idx, line := range lines[2:] {
-		wantPrefix := strconv.Itoa(idx+1) + ","
-		if !strings.HasPrefix(line, wantPrefix) {
-			t.Errorf("unexpected prefix for share %d: want %q, have %q", idx, wantPrefix, line)
+	for _, line := range lines[2:] {
+		parts := strings.Split(line, ",")
+		if len(parts) != 2 {
+			t.Errorf("unexpected number of parts: want 2, have %q", parts)
 		}
 	}
 }
