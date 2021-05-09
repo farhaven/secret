@@ -11,11 +11,16 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"math"
+	"math/rand"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/posener/sharedsecret"
 )
+
+const minShares = 10000 // Minimum number of shares to generate.
 
 func cmdGenerate(n, k int, out io.Writer) error {
 	if k > n {
@@ -26,7 +31,22 @@ func cmdGenerate(n, k int, out io.Writer) error {
 		return errors.New("Number of shares must be larger than 1.")
 	}
 
-	shares, secret := sharedsecret.New(int64(n), int64(k))
+	// Generate a lot more shares than we need and select random n from them to make recovering the number of shares
+	// unfeasible.
+	genSecrets := int64(math.Pow(float64(n), 2))
+	if genSecrets < minShares {
+		genSecrets = minShares
+	}
+
+	shares, secret := sharedsecret.New(genSecrets, int64(k))
+
+	rand.Seed(time.Now().UnixNano())
+	// Randomize list of shares, get the first n
+	rand.Shuffle(len(shares), func(i, j int) {
+		shares[i], shares[j] = shares[j], shares[i]
+	})
+
+	shares = shares[:n]
 
 	fmt.Fprintln(out, "secret:", secret.Text(62))
 
